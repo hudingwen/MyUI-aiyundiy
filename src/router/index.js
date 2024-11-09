@@ -23,7 +23,7 @@ const router = createRouter({
 // 返回false 拦回from的地址页面
 router.beforeEach((to, from) => {
   // 如果没有token,且访问的是非登录页面,拦截到登录页面
-  if (to.meta.title) document.title = '后台管理' + "-" + to.meta.title
+  if (to.meta.title) document.title = '爱云diy' + "-" + to.meta.title
   const userStore = useUserStore()
   if (to.meta.requireAuth === true && !userStore.token && to.path != '/login') {
     return '/login'
