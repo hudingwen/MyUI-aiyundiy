@@ -32,7 +32,7 @@ onMounted(() => {
       <el-col>如果没有绑定,您可以联系小羊帮您重新启动ns如下图所示</el-col>
       <el-col>
         <img style="width: 100%;"
-          src="https://www.aiyundiy.com/wp-content/uploads/2024/03/1709890471-UI2DHEWEOM7ZQWQH4CO.png">
+          src="https://cdn.aiwanyun.cn/2024/20241109/20241109_263193fccf4b455da4d3dd34f568863b.png">
       </el-col>
       <el-col>
         <el-row>
@@ -60,10 +60,10 @@ onMounted(() => {
       <el-col>
         <div style="font-weight: 900;">扫码关注小羊微信&微信公众号</div>
         <div><img style="width: 100%;"
-            src="https://cdn.aiwanyun.cn/2024/20241109/20241109_263193fccf4b455da4d3dd34f568863b.png">
+          src="https://cdn.aiwanyun.cn/2024/20241109/20241109_9668d65602604f82afe4e545a7a7e934.jpg">
         </div>
         <div><img style="width: 100%;"
-            src="https://cdn.aiwanyun.cn/2024/20241109/20241109_9668d65602604f82afe4e545a7a7e934.jpg">
+          src="https://cdn.aiwanyun.cn/2024/20241109/20241109_2a348997385c4cc2a6c30d0948316f26.jpg">
         </div>
       </el-col>
       <el-col>
