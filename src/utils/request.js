@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { saveAs } from 'file-saver';
 import { useUserStore } from '@/stores'
 import router from '@/router'
 const baseURL = ''
@@ -58,8 +57,7 @@ instance.interceptors.response.use(
         if (filenameMatch != null && filenameMatch[1]) {
           filename = filenameMatch[1].replace(/['"]/g, '');
         }
-      }
-      // saveAs(blob, filename);
+      } 
 
       let objectUrl = (window.URL || window.webkitURL).createObjectURL(blob)
       let downFile = document.createElement('a')
