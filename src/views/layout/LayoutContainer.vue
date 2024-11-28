@@ -15,6 +15,8 @@ import { ElLoading } from 'element-plus'
 const curYear = ref('2024')
 const showHtml = ref('')
 const isExpire = ref(true)
+const isCanShowInput = ref(false)
+
 onMounted(() => {
 
   curYear.value = new Date().getFullYear();
@@ -79,8 +81,10 @@ const onSubmit = () => {
       <div v-if="loadingNs">
         NS启动中,请稍等......
       </div>
-      <div>
-        <el-form v-if="!loadingNs && !isExpire" :model="formData" label-width="auto">
+      <div v-if="!loadingNs && !isExpire && isCanShowInput">
+        <div>你得NS处于闲置状态,回复下方信息可以手动重启NS</div>
+        <el-form :model="formData" label-width="auto">
+
           <el-form-item label="输入右边验证码">
             <el-input v-model="formData.code" clearable style="width: 100%;" />
             <el-image @click="refreshCode" style="height: 35px;cursor:pointer;" :src="imgStr">
