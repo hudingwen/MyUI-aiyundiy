@@ -30,6 +30,7 @@ const GetUserInfo = () => {
   GetNsCustomerInfo({ host: '' }).then(res => {
     showHtml.value = res.data.response.showHtml
     isExpire.value = res.data.response.isExpire
+    isCanShowInput.value = res.data.response.isCanShowInput
   })
 }
 
