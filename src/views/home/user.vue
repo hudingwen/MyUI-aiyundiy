@@ -30,8 +30,8 @@ onMounted(() => {
     host.value = route.query.host
   }
   //测试
-  if (!host.value)
-    host.value = 'test.aiyundiy.com'
+  // if (!host.value)
+  //   host.value = 'test.aiyundiy.com'
 
   GetUserInfo()
 
