@@ -12,4 +12,7 @@ export const getCode = params => {
 export const StartNS = params => {
     return request.get('/api/Nightscout/StartNS', { params: params });
 };
-
+// 创建续费订单
+export const CreateOrder = params => {
+    return request.get('/api/Pay/CreateOrder', { params: params });
+};

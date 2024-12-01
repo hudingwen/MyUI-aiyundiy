@@ -12,7 +12,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('@/views/layout/LayoutContainer.vue'),
+      component: () => import('@/views/home/user.vue'),
       meta: { requireAuth: false, title: '首页' }
     }, 
   ]

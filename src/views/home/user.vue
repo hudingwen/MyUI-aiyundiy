@@ -4,33 +4,65 @@ import {
   GetNsCustomerInfo
   , getCode
   , StartNS
+  , CreateOrder
 } from '@/api/customer.js'
 import { useUserStore, useSettingStore } from '@/stores'
+import { useRoute } from 'vue-router';
 import { onMounted, ref } from 'vue'
 
 // 消息框
 import { ElMessage } from 'element-plus'
 import { ElLoading } from 'element-plus'
 
-const curYear = ref('2024')
 const showHtml = ref('')
 const isExpire = ref(true)
+const isStop = ref(true)
+const endTime = ref('')
 const isCanShowInput = ref(false)
+const host = ref('')
+const years = ref(1)
 
+const payInfo = ref({})
 onMounted(() => {
 
-  curYear.value = new Date().getFullYear();
+  const route = useRoute();
+  if (route.query && route.query.host) {
+    host.value = route.query.host
+  }
+  //测试
+  if (!host.value)
+    host.value = 'test.aiyundiy.com'
 
   GetUserInfo()
-  refreshCode()
+
 })
 
+const toAlipay = () => {
+  CreateOrder({ host: host.value, payType: 2, years: years.value }).then(res => {
+    payInfo.value = res.data.response
+  })
+
+}
+const toWechatPay = () => {
+  CreateOrder({ host: host.value, payType: 1, years: years.value }).then(res => {
+    payInfo.value = res.data.response
+  })
+
+}
 const GetUserInfo = () => {
 
-  GetNsCustomerInfo({ host: '' }).then(res => {
+
+  GetNsCustomerInfo({ host: host.value }).then(res => {
     showHtml.value = res.data.response.showHtml
     isExpire.value = res.data.response.isExpire
     isCanShowInput.value = res.data.response.isCanShowInput
+    endTime.value = res.data.response.endTime
+    host.value = res.data.response.host
+    isStop.value = res.data.response.isStop
+
+    if (isStop.value) {
+      refreshCode()
+    }
   })
 }
 
@@ -45,9 +77,8 @@ const refreshCode = () => {
 }
 const loadingNs = ref(false)
 const onSubmit = () => {
-  formData.value.host = ''
+  formData.value.host = host.value
   StartNS(formData.value).then(res => {
-    GetNsCustomerInfo()
     ElMessage.success("启动成功");
 
     const loading = ElLoading.service({
@@ -77,15 +108,47 @@ const onSubmit = () => {
 
 
     <div style="padding: 20px;">
+      <!-- 续费订单 -->
+      <div v-if="host">
+        <div>NS用户: {{ host }}</div>
+        <div>到期时间: {{ endTime }}</div>
+
+        <el-popover placement="bottom-start" :width="400" trigger="click">
+          <template #reference>
+            <el-button type="primary">点我续费</el-button>
+          </template>
+
+          <el-button type="primary" @click="toAlipay">支付宝</el-button>
+
+          <el-button type="primary" @click="toWechatPay">微信</el-button>
+
+          <div style="margin-top: 10px;">
+            我要续费<el-input-number v-model="years" style="margin-left: 10px;width: 150px;" :min="1" :max="10"> <template
+                #append>年</template></el-input-number> 年
+          </div>
+          <div v-if="payInfo.data && payInfo.data.code_url" style="margin-top: 10px;">
+
+            <el-link type="primary" :href="payInfo.data.code_url" target="_blank">点击去支付</el-link>
+
+            <div style="margin-top: 10px;">
+              <div style="margin-top: 10px;">扫码支付</div>
+              <el-image :src="payInfo.data.qrcode" />
+            </div>
+          </div>
+
+        </el-popover>
+
+      </div>
 
 
+
+      <!-- 启动ns -->
       <div v-if="loadingNs">
         NS启动中,请稍等......
       </div>
       <div v-if="!loadingNs && !isExpire && isCanShowInput">
         <div>你得NS处于闲置状态,回复下方信息可以手动重启NS</div>
         <el-form :model="formData" label-width="auto">
-
           <el-form-item label="输入右边验证码">
             <el-input v-model="formData.code" clearable style="width: 100%;" />
             <el-image @click="refreshCode" style="height: 35px;cursor:pointer;" :src="imgStr">
@@ -104,63 +167,13 @@ const onSubmit = () => {
           </el-form-item>
         </el-form>
       </div>
+      <!-- 过期提醒 -->
       <div v-if="showHtml && isExpire" style="color: red;">
         NS已过期,请联系下方微信进行续费!
       </div>
+
+      <!-- 客户介绍 -->
       <div v-html="showHtml">
-
-      </div>
-
-
-
-      <div v-if="false">
-        <div style="color: red;">温馨提示:</div>
-
-        <div>如果您打开ns页面跳转到本页面,请无需担心</div>
-        <div>如果您之前绑定过微信公众号回复"启动"既可</div>
-        <div>如果没有绑定,您可以联系小羊帮您重新启动ns如下图所示</div>
-        <div>
-          <img style="width: 100%;"
-            src="https://cdn.aiwanyun.cn/2024/20241109/20241109_263193fccf4b455da4d3dd34f568863b.png">
-        </div>
-        <div>
-          <div>
-            <div :span="12">
-              <div style="font-weight: 900;">手机硅基延期远程</div>
-              <div>硅基延期远程</div>
-              <div>雅培延期远程</div>
-              <div>Ns远程Pro服务</div>
-            </div>
-            <div :span="12">
-              <div style="font-weight: 900;">承接血糖服务</div>
-              <div>苹果手机loop</div>
-              <div>安卓手机aps(免费)</div>
-              <div>苹果硅基延期远程</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div style="font-weight: 900;">各类定制,优惠价格</div>
-          <div>硅基探头</div>
-          <div>雅培探头</div>
-          <div>年卡套餐</div>
-          <div>硅基定制手表等</div>
-        </div>
-        <div>
-          <div style="font-weight: 900;">扫码关注小羊微信&微信公众号</div>
-          <div><img style="width: 100%;"
-              src="https://cdn.aiwanyun.cn/2024/20241109/20241109_9668d65602604f82afe4e545a7a7e934.jpg">
-          </div>
-          <div><img style="width: 100%;"
-              src="https://cdn.aiwanyun.cn/2024/20241109/20241109_2a348997385c4cc2a6c30d0948316f26.jpg">
-          </div>
-        </div>
-        <div>
-          <div style="text-align: center;">
-            © 2023-{{ curYear }} 爱云diy <a href="https://beian.miit.gov.cn" target="_blank"
-              rel="nofollow">蜀ICP备15023992号-5</a>
-          </div>
-        </div>
       </div>
 
     </div>
