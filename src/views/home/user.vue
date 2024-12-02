@@ -5,6 +5,7 @@ import {
   , getCode
   , StartNS
   , CreateOrder
+  , CheckOrder
 } from '@/api/customer.js'
 import { useUserStore, useSettingStore } from '@/stores'
 import { useRoute } from 'vue-router';
@@ -21,6 +22,7 @@ const endTime = ref('')
 const isCanShowInput = ref(false)
 const host = ref('')
 const years = ref(1)
+const isTarget = ref(false)
 
 const payInfo = ref({})
 onMounted(() => {
@@ -28,6 +30,7 @@ onMounted(() => {
   const route = useRoute();
   if (route.query && route.query.host) {
     host.value = route.query.host
+    isTarget.value = true
   }
   //测试
   // if (!host.value)
@@ -37,21 +40,55 @@ onMounted(() => {
 
 })
 
+// 支付宝续费
+const myWatch = ref()
 const toAlipay = () => {
   CreateOrder({ host: host.value, payType: 2, years: years.value }).then(res => {
     payInfo.value = res.data.response
+    AddOrderCheck()
   })
 
 }
+// 微信续费
 const toWechatPay = () => {
   CreateOrder({ host: host.value, payType: 1, years: years.value }).then(res => {
     payInfo.value = res.data.response
+    AddOrderCheck()
   })
 
 }
+
+// 轮询订单
+const AddOrderCheck = () => {
+  myWatch.value = setInterval(() => {
+    CheckOrder({ id: payInfo.value.data.out_order_no }).then(res => {
+      clearInterval(myWatch.value)
+
+      ElMessage.success("续费成功");
+
+      const loading = ElLoading.service({
+        lock: true,
+        text: '续费成功,页面即将刷新中...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+      loadingNs.value = true
+      setTimeout(() => {
+        loading.close()
+        if (isTarget.value) {
+          //跳转
+          ToMyNs()
+        } else {
+          //刷新
+          RefreshMyNs()
+        }
+
+      }, 5000) 
+
+    })
+  }, 3000);
+}
+// 获取我的信息
 const GetUserInfo = () => {
-
-
   GetNsCustomerInfo({ host: host.value }).then(res => {
     showHtml.value = res.data.response.showHtml
     isExpire.value = res.data.response.isExpire
@@ -68,6 +105,7 @@ const GetUserInfo = () => {
 
 const formData = ref({})
 const imgStr = ref('')
+// 刷新验证码
 const refreshCode = () => {
   getCode().then(res => {
     formData.value.code = ''
@@ -75,6 +113,7 @@ const refreshCode = () => {
     imgStr.value = 'data:image/png;base64,' + res.data.response.code
   })
 }
+// 启动NS
 const loadingNs = ref(false)
 const onSubmit = () => {
   formData.value.host = host.value
@@ -83,13 +122,20 @@ const onSubmit = () => {
 
     const loading = ElLoading.service({
       lock: true,
-      text: '启动成功,页面刷新中...',
+      text: '启动成功,页面即将刷新中...',
       background: 'rgba(0, 0, 0, 0.7)',
     })
     loadingNs.value = true
     setTimeout(() => {
       loading.close()
-      location.reload(true);
+      if (isTarget.value) {
+        //跳转
+        ToMyNs()
+      } else {
+        //刷新
+        RefreshMyNs()
+      }
+
     }, 5000)
 
 
@@ -98,6 +144,13 @@ const onSubmit = () => {
       formData.value.code = ''
       refreshCode()
     })
+}
+
+const ToMyNs = () => {
+  window.open("https://" + host.value)
+}
+const RefreshMyNs = () => {
+  location.reload(true);
 }
 
 
@@ -146,8 +199,8 @@ const onSubmit = () => {
       <div v-if="loadingNs">
         NS启动中,请稍等......
       </div>
-      <div v-if="!loadingNs && !isExpire && isCanShowInput">
-        <div>你得NS处于闲置状态,回复下方信息可以手动重启NS</div>
+      <div v-if="!loadingNs && !isExpire && isCanShowInput && isStop">
+        <div>您的NS处于闲置状态,回复下方信息可以手动重启NS</div>
         <el-form :model="formData" label-width="auto">
           <el-form-item label="输入右边验证码">
             <el-input v-model="formData.code" clearable style="width: 100%;" />
@@ -172,6 +225,10 @@ const onSubmit = () => {
         NS已过期,请联系下方微信进行续费!
       </div>
 
+      <div>
+        <el-button style="margin-top: 10px;" type="primary" v-if="isTarget" @click="ToMyNs">进入我的NS</el-button>
+        <el-button style="margin-top: 10px;" type="primary" v-else @click="RefreshMyNs">点我刷新NS页面</el-button>
+      </div>
       <!-- 客户介绍 -->
       <div v-html="showHtml">
       </div>
