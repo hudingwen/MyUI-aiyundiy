@@ -222,7 +222,7 @@ const RefreshMyNs = () => {
       </div>
       <!-- 过期提醒 -->
       <div v-if="showHtml && isExpire" style="color: red;">
-        NS已过期,请联系下方微信进行续费!
+        NS已过期,点击[续费按钮]进行续费或直接联系下方微信进行手动续费!
       </div>
 
       <div>
