@@ -10,7 +10,7 @@ export const getCode = params => {
 };
 // 启动NS
 export const StartNS = params => {
-  return request.get('https://www.aiyundiy.com/api/Nightscout/StartNS', { params: params });
+  return request.get('/api/Nightscout/StartNS', { params: params });
 };
 // 创建续费订单
 export const CreateOrder = params => {
