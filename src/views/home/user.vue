@@ -84,11 +84,17 @@ onMounted(async () => {
 
   const route = useRoute();
 
-  if (route.query && route.query.host) {
+  const hasQueryHost = !!(route.query && route.query.host)
+
+  if (hasQueryHost) {
 
     host.value = route.query.host
 
     isTarget.value = true
+
+  } else {
+
+    await GetUserInfo()
 
   }
 
@@ -134,7 +140,11 @@ onMounted(async () => {
 
 
 
-  GetUserInfo()
+  if (hasQueryHost) {
+
+    GetUserInfo()
+
+  }
 
 })
 
@@ -332,31 +342,29 @@ const toPay = async () => {
 
 
 
-const GetUserInfo = () => {
+const GetUserInfo = async () => {
 
-  GetNsCustomerInfo({ host: host.value }).then(res => {
+  const res = await GetNsCustomerInfo({ host: host.value })
 
-    showHtml.value = res.data.response.showHtml
+  showHtml.value = res.data.response.showHtml
 
-    isExpire.value = res.data.response.isExpire
+  isExpire.value = res.data.response.isExpire
 
-    isCanShowInput.value = res.data.response.isCanShowInput
+  isCanShowInput.value = res.data.response.isCanShowInput
 
-    endTime.value = res.data.response.endTime
+  endTime.value = res.data.response.endTime
 
-    host.value = res.data.response.host
+  host.value = res.data.response.host
 
-    isStop.value = res.data.response.isStop
+  isStop.value = res.data.response.isStop
 
 
 
-    if (isStop.value) {
+  if (isStop.value) {
 
-      // refreshCode()
+    // refreshCode()
 
-    }
-
-  })
+  }
 
 }
 

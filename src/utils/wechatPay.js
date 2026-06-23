@@ -5,10 +5,14 @@ import { PAY_TYPE_WECHAT, WX_OPENID_KEY } from './payEnv.js'
  * 构建微信 OAuth redirect_uri。
  * 须与公众号后台「网页授权域名」一致：不能带非标准端口、IP、localhost。
  */
-function buildRedirectUri(oauthRedirectBase) {
+function buildRedirectUri(oauthRedirectBase, options = {}) {
   const current = new URL(window.location.href)
   current.searchParams.delete('code')
   current.searchParams.delete('state')
+
+  if (options.host && !current.searchParams.get('host')) {
+    current.searchParams.set('host', options.host)
+  }
 
   const pathAndQuery = `${current.pathname}${current.search}`
 
@@ -96,7 +100,7 @@ export function redirectToWechatOAuth(appId, options = {}) {
   if (!appId || !appId.startsWith('wx')) {
     throw new Error('微信 appId 配置错误，请联系管理员配置正确的公众号 appId')
   }
-  const redirectUri = encodeURIComponent(buildRedirectUri(options.oauthRedirectBase))
+  const redirectUri = encodeURIComponent(buildRedirectUri(options.oauthRedirectBase, options))
   const state = buildOAuthState(options)
   window.location.href =
     `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appId}` +
