@@ -16,7 +16,19 @@ export const StartNS = params => {
 export const CreateOrder = params => {
   return request.get('/api/Pay/CreateOrder', { params: params });
 };
+// 创建主扫续费订单（非微信/支付宝浏览器扫码支付）
+export const CreateActiveScanOrder = params => {
+  return request.get('/api/Pay/CreateActiveScanOrder', { params: params });
+};
 // 订单状态检查
 export const CheckOrder = params => {
   return request.get('/api/Pay/CheckOrder', { params: params, ext: { loading: false } });
+};
+// 授权码换取 openid/userid
+export const GetOpenId = params => {
+  return request.get('/api/Pay/GetOpenId', { params: params });
+};
+// 获取支付配置（微信/支付宝 appId）
+export const GetPayConfig = params => {
+  return request.get('/api/Pay/GetPayConfig', { params: params, ext: { loading: false } });
 };
